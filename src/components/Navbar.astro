@@ -1,0 +1,579 @@
+---
+
+---
+
+<header class="navbar-wrapper">
+  <!-- SVG filter that gives the navbar its "liquid" refraction -->
+  <svg>
+    <filter id="liquid-distort" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence
+        type="fractalNoise"
+        baseFrequency="0.008 0.012"
+        numOctaves="2"
+        seed="7"
+        result="noise"
+      >
+        <animate
+          attributeName="baseFrequency"
+          dur="14s"
+          values="0.008 0.012;0.012 0.018;0.008 0.012"
+          repeatCount="indefinite"></animate>
+      </feTurbulence>
+      <feDisplacementMap
+        in="SourceGraphic"
+        in2="noise"
+        scale="18"
+        xChannelSelector="R"
+        yChannelSelector="G"></feDisplacementMap>
+    </filter>
+  </svg>
+
+  <nav class="glass" id="main-nav">
+    <div class="nav-content">
+      <a class="item active" data-section="inicio">INICIO</a>
+      <div class="sep"></div>
+      <a class="item" data-section="clinica">CLÍNICA</a>
+      <a class="item" data-section="servicios">SERVICIOS</a>
+      <a class="item" data-section="resultados">RESULTADOS</a>
+      <a class="item" data-section="testimonios">TESTIMONIOS</a>
+      <div class="sep"></div>
+      <a class="item" data-section="reservar">RESERVAR</a>
+    </div>
+
+    <button class="burger-btn" id="burger-btn" aria-label="Abrir menú">
+      <span class="burger-dot"></span>
+      <span class="burger-text">INICIO</span>
+      <div class="burger-divider"></div>
+      <svg
+        class="icon-burger"
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+      <svg
+        class="icon-close"
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </nav>
+  <div class="sheet-backdrop" id="sheet-backdrop"></div>
+</header>
+
+<style>
+  .navbar-wrapper {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    width: max-content;
+
+    /* Variables for this component */
+    --ink: #111111;
+    --muted: #666666;
+    --accent: #111111;
+    --glass-tint: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(0, 0, 0, 0.1);
+  }
+
+  /* Only hide the filter SVG, not button icons */
+  header > svg {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  nav.glass {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    isolation: isolate;
+    background: var(--glass-tint);
+    border: 1px solid var(--glass-border);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.05),
+      inset 0 1px 1px rgba(255, 255, 255, 0.9),
+      inset 0 -1px 6px rgba(255, 255, 255, 0.4);
+  }
+
+  /* the refractive backdrop layer (does the actual "glass bending") */
+  nav.glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    backdrop-filter: blur(14px) saturate(160%) url(#liquid-distort);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    z-index: -1;
+  }
+
+  /* moving specular highlight, the "liquid" sheen */
+  nav.glass::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      115deg,
+      rgba(255, 255, 255, 0) 30%,
+      rgba(255, 255, 255, 0.8) 45%,
+      rgba(255, 255, 255, 0) 60%
+    );
+    background-size: 250% 100%;
+    animation: sheen 6s ease-in-out infinite;
+    pointer-events: none;
+    mix-blend-mode: screen;
+  }
+
+  .nav-content {
+    display: flex;
+    align-items: center;
+  }
+
+  .burger-btn {
+    display: none;
+  }
+
+  @keyframes sheen {
+    0% {
+      background-position: 120% 0;
+    }
+    50% {
+      background-position: -20% 0;
+    }
+    100% {
+      background-position: 120% 0;
+    }
+  }
+
+  .active-indicator {
+    width: 0px !important;
+    height: 0px !important;
+    position: none;
+    background-color: #075985;
+    border-radius: 999px;
+    z-index: 0;
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    box-shadow: 0 4px 15px rgba(7, 89, 133, 0.3);
+  }
+
+  .item {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    white-space: nowrap;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+
+  .item:hover {
+    color: var(--ink);
+  }
+
+  .item.active {
+    color: #ffffff;
+  }
+
+  .sep {
+    width: 1px;
+    height: 22px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(0, 0, 0, 0.1),
+      transparent
+    );
+  }
+
+  @media (max-width: 900px) {
+    /* ── Wrapper: pin to top-right ── */
+    .navbar-wrapper {
+      width: auto;
+      left: auto;
+      right: 1.25rem;
+      top: 1.25rem;
+      transform: none;
+    }
+
+    /* ── Pill trigger ── */
+    nav.glass {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      padding: 0.5rem 0.75rem 0.5rem 0.6rem;
+      border-radius: 999px;
+      filter: none !important;
+    }
+
+    /* ── Bottom-sheet backdrop ── */
+    .nav-content {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      max-height: 80vh;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(28px) saturate(200%);
+      -webkit-backdrop-filter: blur(28px) saturate(200%);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-end;
+      gap: 0;
+      border-radius: 28px 28px 0 0;
+      border-top: 1px solid rgba(0, 0, 0, 0.07);
+      box-shadow:
+        0 -8px 40px rgba(0, 0, 0, 0.08),
+        0 -2px 8px rgba(0, 0, 0, 0.04);
+      padding: 0.75rem 0 calc(env(safe-area-inset-bottom) + 1.5rem);
+      opacity: 0;
+      transform: translateY(100%);
+      pointer-events: none;
+      transition:
+        opacity 0.32s cubic-bezier(0.32, 0.72, 0, 1),
+        transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+      z-index: 70; /* raise above backdrop */
+    }
+
+    /* Sheet drag handle */
+    .nav-content::before {
+      content: "";
+      display: block;
+      width: 36px;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(0, 0, 0, 0.15);
+      margin: 0 auto 1rem;
+      flex-shrink: 0;
+    }
+
+    /* Sheet open state */
+    nav.glass.open .nav-content {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* Backdrop overlay (tap to close) */
+      .sheet-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.22);
+        z-index: 60;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.32s ease;
+      }
+      nav.glass.open ~ .sheet-backdrop {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+    /* ── Burger button (pill trigger) ── */
+    .burger-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      color: var(--ink);
+    }
+
+    /* Active-section indicator dot */
+    .burger-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #075985;
+      flex-shrink: 0;
+    }
+
+    .burger-text {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--ink);
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .burger-divider {
+      width: 1px;
+      height: 12px;
+      background: rgba(0, 0, 0, 0.15);
+      margin: 0 0.1rem;
+    }
+
+    .burger-btn svg {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+      color: var(--muted);
+    }
+
+    /* ── Sheet nav items ── */
+      .item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-align: left;
+        padding: 1rem 1.75rem;
+        font-size: 1.15rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+        color: var(--ink);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        background: transparent;
+        cursor: pointer;
+        opacity: 0;
+        transform: translateY(12px);
+        transition:
+          opacity 0.25s ease,
+          transform 0.25s ease,
+          background 0.15s ease;
+        pointer-events: auto;
+        z-index: 1; /* ensure items are above any overlay */
+      }
+
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    /* Arrow icon on each item */
+    .item::after {
+      content: "→";
+      font-size: 0.9rem;
+      opacity: 0.25;
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .item:hover::after,
+    .item.active::after {
+      opacity: 0.8;
+      transform: translateX(3px);
+    }
+
+    .item.active {
+      color: #075985;
+      background: rgba(7, 89, 133, 0.05);
+    }
+
+    .item:hover {
+      background: rgba(0, 0, 0, 0.03);
+    }
+
+    /* Stagger items when sheet opens */
+    nav.glass.open .item:nth-child(1) {
+      opacity: 1;
+      transform: none;
+      transition-delay: 0.05s;
+    }
+    nav.glass.open .item:nth-child(2) {
+      opacity: 1;
+      transform: none;
+      transition-delay: 0.09s;
+    }
+    nav.glass.open .item:nth-child(3) {
+      opacity: 1;
+      transform: none;
+      transition-delay: 0.13s;
+    }
+    nav.glass.open .item:nth-child(4) {
+      opacity: 1;
+      transform: none;
+      transition-delay: 0.17s;
+    }
+    nav.glass.open .item:nth-child(5) {
+      opacity: 1;
+      transform: none;
+      transition-delay: 0.21s;
+    }
+    nav.glass.open .item:nth-child(6) {
+      opacity: 1;
+      transform: none;
+      transition-delay: 0.25s;
+    }
+
+    .sep {
+      display: none;
+    }
+
+    .icon-close {
+      display: none;
+    }
+
+    nav.glass.open .icon-burger {
+      display: none;
+    }
+
+    nav.glass.open .icon-close {
+      display: block;
+      color: var(--ink);
+    }
+
+    /* Hide desktop indicator in mobile */
+    .active-indicator {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const initNav = () => {
+    const nav = document.querySelector("nav.glass");
+    if (!nav) return;
+
+    const items = document.querySelectorAll("nav.glass a.item");
+    const burgerBtn = document.getElementById("burger-btn");
+
+    if (burgerBtn) {
+      burgerBtn.addEventListener("click", () => {
+        nav.classList.toggle("open");
+        document.body.style.overflow = nav.classList.contains("open")
+          ? "hidden"
+          : "";
+
+        // Refresh indicator position after animation (desktop only)
+        setTimeout(() => {
+          const active = document.querySelector("nav.glass a.item.active");
+          if (active && window.innerWidth > 900) updateIndicator(active);
+        }, 350);
+      });
+    }
+
+    // Tap backdrop to close sheet
+    const backdrop = document.getElementById("sheet-backdrop");
+    if (backdrop) {
+      backdrop.addEventListener("click", () => {
+        nav.classList.remove("open");
+        document.body.style.overflow = "";
+      });
+    }
+
+    const indicator = document.createElement("div");
+    indicator.className = "active-indicator";
+    nav.appendChild(indicator);
+
+    const updateIndicator = (el: Element) => {
+      const navRect = nav.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+    };
+
+    setTimeout(() => {
+      const active = document.querySelector("nav.glass a.item.active");
+      if (active) updateIndicator(active);
+    }, 100);
+
+    items.forEach((item) => {
+      item.addEventListener("click", (e) => {
+        e.preventDefault();
+        items.forEach((i) => i.classList.remove("active"));
+        item.classList.add("active");
+
+        const section = item.getAttribute("data-section");
+
+        if (window.innerWidth <= 900) {
+          nav.classList.remove("open");
+          document.body.style.overflow = "";
+          // Dispatch scroll after sheet closes (let transition play)
+          setTimeout(() => {
+            window.dispatchEvent(
+              new CustomEvent("scrollToSection", { detail: section }),
+            );
+          }, 340);
+        } else {
+          updateIndicator(item);
+          window.dispatchEvent(
+            new CustomEvent("scrollToSection", { detail: section }),
+          );
+        }
+      });
+    });
+
+    window.addEventListener("updateActiveNav", (e: any) => {
+      const section = e.detail;
+      const targetItem = document.querySelector(
+        `nav.glass a.item[data-section="${section}"]`,
+      );
+      if (targetItem && !targetItem.classList.contains("active")) {
+        items.forEach((i) => i.classList.remove("active"));
+        targetItem.classList.add("active");
+
+        if (window.innerWidth > 900 || nav.classList.contains("open")) {
+          updateIndicator(targetItem);
+        }
+
+        // Update mobile burger text
+        const burgerText = document.querySelector(".burger-text");
+        if (burgerText && window.innerWidth <= 900) {
+          burgerText.textContent = targetItem.textContent;
+        }
+      }
+    });
+
+    window.addEventListener("resize", () => {
+      const active = document.querySelector("nav.glass a.item.active");
+      if (
+        active &&
+        (window.innerWidth > 900 || nav.classList.contains("open"))
+      ) {
+        updateIndicator(active);
+      }
+      if (window.innerWidth > 900) {
+        nav.classList.remove("open");
+      } else if (active) {
+        // Ensure burger text is correct on resize to mobile
+        const burgerText = document.querySelector(".burger-text");
+        if (burgerText) {
+          burgerText.textContent = active.textContent;
+        }
+      }
+    });
+
+    // Set initial burger text
+    const initialActive = document.querySelector("nav.glass a.item.active");
+    const burgerText = document.querySelector(".burger-text");
+    if (initialActive && burgerText && window.innerWidth <= 900) {
+      burgerText.textContent = initialActive.textContent;
+    }
+  };
+
+  document.addEventListener("DOMContentLoaded", initNav);
+  // Optional for view transitions if added later
+  document.addEventListener("astro:page-load", initNav);
+</script>
