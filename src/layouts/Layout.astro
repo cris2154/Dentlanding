@@ -1,5 +1,6 @@
 ---
 import Navbar from '../components/Navbar.astro';
+import '../styles/global.css';
 ---
 <!doctype html>
 <html lang="es">
@@ -22,7 +23,8 @@ import Navbar from '../components/Navbar.astro';
 			gsap.registerPlugin(ScrollTrigger);
 
 			const lenis = new Lenis({
-				autoRaf: true,
+				lerp: 0.07, // Valor equilibrado para suavidad
+				wheelMultiplier: 1,
 			});
 
 			lenis.on('scroll', ScrollTrigger.update);

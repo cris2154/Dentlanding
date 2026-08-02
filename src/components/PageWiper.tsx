@@ -1076,52 +1076,63 @@ export default function PageWiper() {
 
         {/* SECTION 6: VISIT / RESERVAR */}
         <section className="page-panel" style={{ ...panelStyle, zIndex: 6, clipPath: 'inset(100% 0 0 0)', backgroundColor: '#075985' }}>
-          <div className="visit-section">
-            <div className="visit-container">
-              <div className="visit-text">
-                <h2 className="reveal-target">¿Listo para transformar<br />tu sonrisa?</h2>
-                <p className="reveal-target">Agenda una cita de valoración hoy mismo y descubre por qué somos líderes en odontología avanzada.</p>
+          <div className="w-full h-full flex justify-center items-center bg-sky-900 overflow-y-auto overflow-x-hidden">
+            <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-8 pt-32 pb-16 lg:py-16 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center text-center lg:text-left">
+              
+              <div className="text-white flex flex-col items-center lg:items-start">
+                <h2 className="reveal-target text-4xl sm:text-5xl lg:text-[3.5rem] font-bold leading-[1.1] mb-6 tracking-tight text-white mt-20 lg:mt-0">
+                  ¿Listo para transformar<br />tu sonrisa?
+                </h2>
+                <p className="reveal-target text-white/90 text-[1.15rem] leading-relaxed max-w-[450px] mb-12">
+                  Agenda una cita de valoración hoy mismo y descubre por qué somos líderes en odontología avanzada.
+                </p>
 
-                <div className="specialists reveal-target">
-                  <div className="avatars">
-                    <div className="avatar avatar-1"></div>
-                    <div className="avatar avatar-2"></div>
-                    <div className="avatar avatar-3"></div>
-                    <div className="avatar avatar-4"></div>
-                    <div className="avatar avatar-5"></div>
-                    <div className="avatar avatar-6"></div>
+                <div className="specialists reveal-target flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+                  <div className="flex pl-2">
+                    <div className="w-11 h-11 rounded-full border-[3px] border-sky-900 bg-gray-300 bg-cover bg-center z-[6] hover:-translate-y-2 transition-transform cursor-pointer" style={{backgroundImage: "url('https://randomuser.me/api/portraits/women/44.jpg')"}}></div>
+                    <div className="w-11 h-11 rounded-full border-[3px] border-sky-900 bg-gray-300 bg-cover bg-center -ml-[15px] z-[5] hover:-translate-y-2 transition-transform cursor-pointer" style={{backgroundImage: "url('https://randomuser.me/api/portraits/men/32.jpg')"}}></div>
+                    <div className="w-11 h-11 rounded-full border-[3px] border-sky-900 bg-gray-300 bg-cover bg-center -ml-[15px] z-[4] hover:-translate-y-2 transition-transform cursor-pointer" style={{backgroundImage: "url('https://randomuser.me/api/portraits/women/68.jpg')"}}></div>
+                    <div className="w-11 h-11 rounded-full border-[3px] border-sky-900 bg-gray-300 bg-cover bg-center -ml-[15px] z-[3] hover:-translate-y-2 transition-transform cursor-pointer" style={{backgroundImage: "url('https://randomuser.me/api/portraits/men/46.jpg')"}}></div>
+                    <div className="w-11 h-11 rounded-full border-[3px] border-sky-900 bg-gray-300 bg-cover bg-center -ml-[15px] z-[2] hover:-translate-y-2 transition-transform cursor-pointer" style={{backgroundImage: "url('https://randomuser.me/api/portraits/women/33.jpg')"}}></div>
+                    <div className="w-11 h-11 rounded-full border-[3px] border-sky-900 bg-gray-300 bg-cover bg-center -ml-[15px] z-[1] hover:-translate-y-2 transition-transform cursor-pointer" style={{backgroundImage: "url('https://randomuser.me/api/portraits/men/22.jpg')"}}></div>
                   </div>
-                  <span>Más de 20 especialistas listos para atenderte.</span>
+                  <span className="text-white font-semibold text-[0.95rem]">Más de 20 especialistas listos para atenderte.</span>
                 </div>
               </div>
 
-              <div className="visit-form-card reveal-target">
-                <h3>Reserva Rápida</h3>
+              <div className="reveal-target bg-white rounded-[2rem] p-8 sm:p-12 shadow-[0_20px_40px_rgba(0,0,0,0.2)] w-full mx-auto max-w-[500px] lg:max-w-none text-left">
+                <h3 className="text-sky-900 text-2xl font-bold mt-0 mb-8 text-center lg:text-left">Reserva Rápida</h3>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Nombre Completo</label>
-                    <input type="text" placeholder="Tu nombre" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-gray-500 text-[0.85rem] font-semibold">Nombre Completo</label>
+                    <input type="text" placeholder="Tu nombre" className="p-4 border border-slate-200 bg-slate-50 rounded-xl text-base text-slate-700 outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all w-full" />
                   </div>
-                  <div className="form-group">
-                    <label>Teléfono</label>
-                    <input type="tel" placeholder="+1 234 567" />
+                  <div className="flex flex-col gap-2">
+                    <label className="text-gray-500 text-[0.85rem] font-semibold">Teléfono</label>
+                    <input type="tel" placeholder="+1 234 567" className="p-4 border border-slate-200 bg-slate-50 rounded-xl text-base text-slate-700 outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all w-full" />
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label>Especialidad de Interés</label>
-                  <select>
-                    <option>Limpieza Dental</option>
-                    <option>Ortodoncia</option>
-                    <option>Implantes</option>
-                    <option>Blanqueamiento</option>
-                  </select>
+                <div className="relative flex flex-col gap-2 mb-8">
+                  <label className="text-gray-500 text-[0.85rem] font-semibold">Especialidad de Interés</label>
+                  <div className="relative w-full">
+                    <select className="w-full p-4 border border-slate-200 bg-slate-50 rounded-xl text-base text-slate-700 outline-none focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-500/10 transition-all appearance-none pr-12 cursor-pointer">
+                      <option>Limpieza Dental</option>
+                      <option>Ortodoncia</option>
+                      <option>Implantes</option>
+                      <option>Blanqueamiento</option>
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                  </div>
                 </div>
 
-                <button className="submit-btn floating-btn-1">ENVIAR SOLICITUD</button>
-                <div className="form-footer">Nos pondremos en contacto contigo en menos de 2 horas.</div>
+                <button className="w-full bg-sky-900 text-white border-none p-4 rounded-xl text-base font-bold cursor-pointer mt-2 floating-btn-1">ENVIAR SOLICITUD</button>
+                <div className="text-center text-[0.8rem] text-gray-500 mt-4">Nos pondremos en contacto contigo en menos de 2 horas.</div>
               </div>
+
             </div>
           </div>
         </section>
