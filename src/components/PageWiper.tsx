@@ -120,102 +120,42 @@ export default function PageWiper() {
 
     mm.add("(max-width: 900px)", () => {
       const panels = gsap.utils.toArray('.page-panel') as HTMLElement[];
-      let lastLabel = "inicio";
 
-      // Master pinned timeline — same architecture as desktop
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: container.current,
-          start: "top top",
-          end: () => `+=${(panels.length - 1) * 2200 + 1800}`,
-          scrub: 0.8,
-          pin: true,
-          anticipatePin: 1,
-          onUpdate: () => {
-            const currentLabel = tl.currentLabel();
-            if (currentLabel && currentLabel !== lastLabel) {
-              lastLabel = currentLabel;
-              window.dispatchEvent(new CustomEvent("updateActiveNav", { detail: currentLabel }));
-            }
-          }
-        }
-      });
-
-      // Initial reading pause on hero
-      tl.addLabel("inicio", 0);
-      // Hero (panel 0): fake-scroll its content if taller than viewport
-      const heroContent = panels[0]?.querySelector('.section-wrapper') as HTMLElement;
-      if (heroContent) {
-        const heroOverflow = () => Math.max(0, heroContent.scrollHeight - window.innerHeight);
-        tl.to(heroContent, {
-          y: () => -heroOverflow(),
-          ease: "none",
-          duration: () => heroOverflow() > 0 ? 3 : 0
-        });
-      }
-
-      tl.to({}, { duration: 2 });
-
-      panels.forEach((panel, i) => {
-        if (i === 0) return;
-
+      panels.forEach((panel) => {
         const targets = panel.querySelectorAll('.reveal-target');
-
-        // Wipe in the panel from the bottom
-        tl.fromTo(panel,
-          { clipPath: "inset(100% 0 0 0)" },
-          { clipPath: "inset(0% 0 0 0)", duration: 2, ease: "none" }
-        );
-
-        // Reveal text with stagger, overlapping end of wipe
+        
         if (targets.length > 0) {
-          tl.from(targets, {
-            y: 60,
+          gsap.from(targets, {
+            scrollTrigger: {
+              trigger: panel,
+              start: "top 85%",
+            },
+            y: 40,
             opacity: 0,
-            duration: 1.5,
-            stagger: 0.3,
+            duration: 1,
+            stagger: 0.15,
             ease: "power2.out"
-          }, "-=0.5");
-        }
-
-        const label = ["", "clinica", "servicios", "resultados", "testimonios", "reservar"][i];
-        if (label) tl.addLabel(label, tl.duration());
-
-        // Fake-scroll: let the user scroll through tall content before next wipe
-        const contentEl = (panel.querySelector('.services-scroll-content') ||
-                          panel.querySelector('.section-wrapper') ||
-                          panel.querySelector('.visit-section')) as HTMLElement;
-        if (contentEl) {
-          const overflow = () => Math.max(0, contentEl.scrollHeight - window.innerHeight);
-          tl.to(contentEl, {
-            y: () => -overflow(),
-            ease: "none",
-            duration: () => overflow() > 0 ? 4 : 0
           });
         }
-
-        // Reading pause
-        tl.to({}, { duration: 2.5 });
       });
 
-      // Nav scroll-to-section handler
+      // Nav scroll-to-section handler for mobile (native scroll)
       const handleMobileScroll = (e: Event) => {
         const section = (e as CustomEvent).detail as string;
-        const labelTime = tl.labels[section];
-        if (labelTime !== undefined) {
-          const progress = labelTime / tl.duration();
-          const st = tl.scrollTrigger;
-          if (st) {
-            const scrollPos = st.start + (st.end - st.start) * progress;
-            window.scrollTo({ top: scrollPos, behavior: 'smooth' });
-          }
+        const labels = ["inicio", "clinica", "servicios", "resultados", "testimonios", "reservar"];
+        const index = labels.indexOf(section);
+        
+        if (index !== -1 && panels[index]) {
+          const yOffset = -80; // Offset for navbar
+          const element = panels[index];
+          const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
+          window.scrollTo({ top: y, behavior: 'smooth' });
         }
       };
 
       window.addEventListener('scrollToSection', handleMobileScroll);
       return () => window.removeEventListener('scrollToSection', handleMobileScroll);
     });
-
   }, { scope: container });
 
   // Styles for the panels
@@ -652,6 +592,16 @@ export default function PageWiper() {
         @media (max-width: 900px) {
           .services-grid { grid-template-columns: repeat(2, 1fr); }
           .testimonials-grid { grid-template-columns: repeat(2, 1fr); }
+          .page-wiper-container {
+            height: auto !important;
+            overflow: visible !important;
+          }
+          .page-panel {
+            position: relative !important;
+            height: auto !important;
+            min-height: 100vh;
+            clip-path: none !important;
+          }
         }
 
         @media (max-width: 768px) {
