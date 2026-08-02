@@ -12,6 +12,12 @@ export default function PageWiper() {
   const container = useRef(null);
 
   useGSAP(() => {
+    // Prevent browser from restoring scroll position on reload which causes jumping
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+
     let mm = gsap.matchMedia();
 
     // 1. Animate Hero text on load (independent of scroll)
@@ -114,60 +120,95 @@ export default function PageWiper() {
 
     mm.add("(max-width: 900px)", () => {
       const panels = gsap.utils.toArray('.page-panel') as HTMLElement[];
-      const labels = ["inicio", "clinica", "servicios", "resultados", "testimonios", "reservar"];
-      
-      panels.forEach((panel, i) => {
-        // Sync active navbar item
-        ScrollTrigger.create({
-          trigger: panel,
-          start: "top 50%",
-          end: "bottom 50%",
-          onEnter: () => window.dispatchEvent(new CustomEvent("updateActiveNav", { detail: labels[i] })),
-          onEnterBack: () => window.dispatchEvent(new CustomEvent("updateActiveNav", { detail: labels[i] }))
-        });
+      let lastLabel = "inicio";
 
-        if (i === 0) return; // Hero text is already animated globally
-
-        const targets = panel.querySelectorAll('.reveal-target');
-
-        // Mask animation as the section scrolls into view
-        gsap.fromTo(panel,
-          { clipPath: "inset(100% 0 0 0)" },
-          {
-            clipPath: "inset(0% 0 0 0)",
-            duration: 1.2,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: panel,
-              start: "top 85%",
-              toggleActions: "play none none reverse"
+      // Master pinned timeline — same architecture as desktop
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: container.current,
+          start: "top top",
+          end: () => `+=${(panels.length - 1) * 2200 + 1800}`,
+          scrub: 0.8,
+          pin: true,
+          anticipatePin: 1,
+          onUpdate: () => {
+            const currentLabel = tl.currentLabel();
+            if (currentLabel && currentLabel !== lastLabel) {
+              lastLabel = currentLabel;
+              window.dispatchEvent(new CustomEvent("updateActiveNav", { detail: currentLabel }));
             }
           }
-        );
-
-        // Text stagger reveal
-        if (targets.length > 0) {
-          gsap.from(targets, {
-            y: 50,
-            opacity: 0,
-            duration: 1,
-            stagger: 0.2,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: panel,
-              start: "top 75%",
-              toggleActions: "play none none reverse"
-            }
-          });
         }
       });
 
-      // Handle nav scroll-to-section on mobile (native scroll to panel element)
+      // Initial reading pause on hero
+      tl.addLabel("inicio", 0);
+      // Hero (panel 0): fake-scroll its content if taller than viewport
+      const heroContent = panels[0]?.querySelector('.section-wrapper') as HTMLElement;
+      if (heroContent) {
+        const heroOverflow = () => Math.max(0, heroContent.scrollHeight - window.innerHeight);
+        tl.to(heroContent, {
+          y: () => -heroOverflow(),
+          ease: "none",
+          duration: () => heroOverflow() > 0 ? 3 : 0
+        });
+      }
+
+      tl.to({}, { duration: 2 });
+
+      panels.forEach((panel, i) => {
+        if (i === 0) return;
+
+        const targets = panel.querySelectorAll('.reveal-target');
+
+        // Wipe in the panel from the bottom
+        tl.fromTo(panel,
+          { clipPath: "inset(100% 0 0 0)" },
+          { clipPath: "inset(0% 0 0 0)", duration: 2, ease: "none" }
+        );
+
+        // Reveal text with stagger, overlapping end of wipe
+        if (targets.length > 0) {
+          tl.from(targets, {
+            y: 60,
+            opacity: 0,
+            duration: 1.5,
+            stagger: 0.3,
+            ease: "power2.out"
+          }, "-=0.5");
+        }
+
+        const label = ["", "clinica", "servicios", "resultados", "testimonios", "reservar"][i];
+        if (label) tl.addLabel(label, tl.duration());
+
+        // Fake-scroll: let the user scroll through tall content before next wipe
+        const contentEl = (panel.querySelector('.services-scroll-content') ||
+                          panel.querySelector('.section-wrapper') ||
+                          panel.querySelector('.visit-section')) as HTMLElement;
+        if (contentEl) {
+          const overflow = () => Math.max(0, contentEl.scrollHeight - window.innerHeight);
+          tl.to(contentEl, {
+            y: () => -overflow(),
+            ease: "none",
+            duration: () => overflow() > 0 ? 4 : 0
+          });
+        }
+
+        // Reading pause
+        tl.to({}, { duration: 2.5 });
+      });
+
+      // Nav scroll-to-section handler
       const handleMobileScroll = (e: Event) => {
         const section = (e as CustomEvent).detail as string;
-        const idx = labels.indexOf(section);
-        if (idx !== -1 && panels[idx]) {
-          panels[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const labelTime = tl.labels[section];
+        if (labelTime !== undefined) {
+          const progress = labelTime / tl.duration();
+          const st = tl.scrollTrigger;
+          if (st) {
+            const scrollPos = st.start + (st.end - st.start) * progress;
+            window.scrollTo({ top: scrollPos, behavior: 'smooth' });
+          }
         }
       };
 
@@ -378,8 +419,9 @@ export default function PageWiper() {
         @media (max-width: 900px) {
           .visit-container {
             grid-template-columns: 1fr;
-            gap: 3rem;
-            padding: 4rem 2rem 6rem 2rem;
+            gap: 2rem;
+            padding: 11rem 2rem 6rem 2rem;
+            text-align: center;
           }
         }
         .visit-text h2 {
@@ -596,69 +638,174 @@ export default function PageWiper() {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 1.5rem;
-          flex: 1;
-          min-height: 0;
           width: 100%;
-          overflow-y: auto;
-          overflow-x: hidden;
           padding-bottom: 2rem;
         }
         .faq-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
           gap: 2rem;
-          flex: 1;
-          min-height: 0;
           width: 100%;
-          overflow-y: auto;
-          overflow-x: hidden;
-          padding-bottom: 2rem;
         }
 
         /* Mobile specific styling */
         @media (max-width: 900px) {
-          .page-wiper-container {
-            height: auto !important;
-          }
-          .page-panel {
-            position: relative !important;
-            height: auto !important;
-            min-height: 100vh;
-            clip-path: none !important;
-            overflow: visible !important;
-          }
-          
           .services-grid { grid-template-columns: repeat(2, 1fr); }
           .testimonials-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 768px) {
-          .section-wrapper { padding: 5rem 1.5rem 3rem 1.5rem; }
-          .services-scroll-content { padding: 5rem 1.5rem 3rem 1.5rem !important; }
-          
-          .hero-grid {
-            grid-template-columns: 1fr;
-            gap: 2rem;
+          /* Sections: taller panels with top-aligned content like services */
+          .page-panel {
+            align-items: flex-start !important;
+            justify-content: flex-start !important;
+          }
+
+          .section-wrapper {
+            padding: 4rem 1.5rem 3rem 1.5rem;
+            align-items: flex-start;
+            justify-content: flex-start;
             text-align: center;
           }
-          .hero-grid > div:first-child { align-items: center; }
+          .section-wrapper-col {
+            align-items: center;
+          }
+          .services-scroll-content {
+            padding: 4rem 1.5rem 3rem 1.5rem !important;
+            text-align: center;
+          }
           
+          /* Hero */
+          .hero-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            text-align: center;
+          }
+          .hero-grid > div:first-child {
+            align-items: center;
+          }
+          .hero-grid h1 { font-size: 2rem !important; line-height: 1.1 !important; }
+
+
+          /* About grid: center + smaller images */
           .about-grid {
             grid-template-columns: 1fr;
             grid-template-rows: auto;
+            text-align: center;
           }
           .about-grid .bento-image-container {
             grid-column: 1 / -1 !important;
             grid-row: auto !important;
-            height: 200px;
+            height: 160px;
           }
-          
-          .services-grid { grid-template-columns: 1fr; }
+
+          /* Center section headings */
+          .section-wrapper h2,
+          .section-wrapper h3,
+          .section-wrapper p,
+          .services-scroll-content h2,
+          .services-scroll-content h3,
+          .services-scroll-content p {
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+          }
+
+          /* Service cards — bigger, single column */
+          .services-grid {
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+            max-width: 400px !important;
+            margin: 0 auto;
+          }
+          .service-card {
+            aspect-ratio: 1 / 1 !important;
+            padding: 1.5rem !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+          }
+          .service-card .card-badge {
+            font-size: 0.85rem !important;
+            padding: 0.4rem 1rem !important;
+            top: 14px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+          }
+
+          /* Testimonials & FAQ */
           .testimonials-grid { grid-template-columns: 1fr; }
           .faq-grid { grid-template-columns: 1fr; }
-          
-          /* Typography for mobile */
-          .hero-grid h1 { font-size: 2.5rem !important; }
+
+          /* Visit section center */
+          .visit-text {
+            text-align: center;
+          }
+          .visit-text p {
+            margin-left: auto;
+            margin-right: auto;
+          }
+          .specialists {
+            justify-content: center;
+            flex-wrap: wrap;
+          }
+
+          /* ── Unified Typography for Accessibility ── */
+          /* h1 */
+          .page-panel h1 {
+            font-size: 2rem !important;
+            line-height: 1.15 !important;
+          }
+          /* h2 — all section titles */
+          .page-panel h2,
+          .visit-text h2 {
+            font-size: 1.75rem !important;
+            line-height: 1.2 !important;
+          }
+          /* h3 — subtitles */
+          .page-panel h3,
+          .visit-form-card h3 {
+            font-size: 1.1rem !important;
+            line-height: 1.3 !important;
+          }
+          /* Body text — all paragraphs */
+          .page-panel p,
+          .visit-text p,
+          .visit-form-card .form-footer {
+            font-size: 1rem !important;
+            line-height: 1.6 !important;
+          }
+          /* Labels and small text */
+          .form-group label {
+            font-size: 0.9rem !important;
+          }
+          .form-group input,
+          .form-group select {
+            font-size: 1rem !important;
+          }
+          /* Review cards */
+          .review-card p {
+            font-size: 0.95rem !important;
+          }
+          /* FAQ answers */
+          .faq-grid p {
+            font-size: 0.95rem !important;
+          }
+          /* Buttons */
+          .page-panel button,
+          .submit-btn {
+            font-size: 0.95rem !important;
+          }
+          /* Service card text */
+          .service-card .card-text {
+            font-size: 1rem !important;
+            line-height: 1.5 !important;
+            text-align: center !important;
+          }
+          .service-card .card-badge {
+            font-size: 0.85rem !important;
+          }
         }
       `}</style>
       <div ref={container} className="page-wiper-container">
