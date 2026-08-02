@@ -1,12 +1,44 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import PageWiper from '../components/PageWiper';
+import { getImage } from 'astro:assets';
+
+import clinica1Src from '../assets/images/clinica1.jpg';
+import clinica2Src from '../assets/images/clinica2.jpg';
+import clinica3Src from '../assets/images/clinica3.jpg';
+import limpiezaSrc from '../assets/images/limpieza_dental.png';
+import ortodonciaSrc from '../assets/images/ortodoncia.png';
+import implantesSrc from '../assets/images/implantes.png';
+import blanqueamientoSrc from '../assets/images/blanqueamiento.png';
+import endodonciaSrc from '../assets/images/endodoncia.png';
+import odontopediatriaSrc from '../assets/images/odontopediatria.png';
+
+const optClinica1 = await getImage({ src: clinica1Src, format: 'webp', width: 800 });
+const optClinica2 = await getImage({ src: clinica2Src, format: 'webp', width: 800 });
+const optClinica3 = await getImage({ src: clinica3Src, format: 'webp', width: 800 });
+const optLimpieza = await getImage({ src: limpiezaSrc, format: 'webp', width: 400 });
+const optOrtodoncia = await getImage({ src: ortodonciaSrc, format: 'webp', width: 400 });
+const optImplantes = await getImage({ src: implantesSrc, format: 'webp', width: 400 });
+const optBlanqueamiento = await getImage({ src: blanqueamientoSrc, format: 'webp', width: 400 });
+const optEndodoncia = await getImage({ src: endodonciaSrc, format: 'webp', width: 400 });
+const optOdontopediatria = await getImage({ src: odontopediatriaSrc, format: 'webp', width: 400 });
+
+const optimizedImages = {
+  clinica1: optClinica1.src,
+  clinica2: optClinica2.src,
+  clinica3: optClinica3.src,
+  limpieza: optLimpieza.src,
+  ortodoncia: optOrtodoncia.src,
+  implantes: optImplantes.src,
+  blanqueamiento: optBlanqueamiento.src,
+  endodoncia: optEndodoncia.src,
+  odontopediatria: optOdontopediatria.src
+};
 ---
 
 <Layout>
 	<main class="main-container">
-		<PageWiper client:load />
-
+		<PageWiper client:load optimizedImages={optimizedImages} />
 
 
 		<!-- FOOTER REALISTA -->
@@ -108,7 +140,7 @@ import PageWiper from '../components/PageWiper';
 		padding-bottom: 0;
 	}
 	.site-footer {
-		background-color: #000000;
+		background-color: #0c4a6e;
 		color: #ffffff;
 		padding: 4rem 2rem 2rem 2rem;
 		border-top-left-radius: 3rem;
@@ -116,11 +148,11 @@ import PageWiper from '../components/PageWiper';
 		border-bottom-left-radius: 0;
 		border-bottom-right-radius: 0;
 		margin: 0 1rem 0 1rem;
-		border-top: 1px solid #1f2937;
-		border-left: 1px solid #1f2937;
-		border-right: 1px solid #1f2937;
+		border-top: 1px solid #075985;
+		border-left: 1px solid #075985;
+		border-right: 1px solid #075985;
 		border-bottom: none;
-		box-shadow: 0 -10px 40px rgba(255,255,255,0.05);
+		box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
 		display: flex;
 		justify-content: center;
 	}
