@@ -8,7 +8,21 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, useGSAP);
 }
 
-export default function PageWiper() {
+interface PageWiperProps {
+  optimizedImages?: {
+    clinica1: string;
+    clinica2: string;
+    clinica3: string;
+    limpieza: string;
+    ortodoncia: string;
+    implantes: string;
+    blanqueamiento: string;
+    endodoncia: string;
+    odontopediatria: string;
+  };
+}
+
+export default function PageWiper({ optimizedImages }: PageWiperProps) {
   const container = useRef(null);
 
   useGSAP(() => {
@@ -858,13 +872,13 @@ export default function PageWiper() {
 
             <div className="reveal-target about-grid">
               <div className="bento-image-container" style={{ gridColumn: '1 / 2', gridRow: '1 / 3' }}>
-                <img src="/images/clinica1.jpg" alt="Instalaciones 1" />
+                <img src={optimizedImages?.clinica1 || "/images/clinica1.jpg"} alt="Instalaciones 1" />
               </div>
               <div className="bento-image-container" style={{ gridColumn: '2 / 3', gridRow: '1 / 2' }}>
-                <img src="/images/clinica2.jpg" alt="Instalaciones 2" />
+                <img src={optimizedImages?.clinica2 || "/images/clinica2.jpg"} alt="Instalaciones 2" />
               </div>
               <div className="bento-image-container" style={{ gridColumn: '2 / 3', gridRow: '2 / 3' }}>
-                <img src="/images/clinica3.jpg" alt="Instalaciones 3" />
+                <img src={optimizedImages?.clinica3 || "/images/clinica3.jpg"} alt="Instalaciones 3" />
               </div>
             </div>
           </div>
@@ -889,7 +903,7 @@ export default function PageWiper() {
             <div className="reveal-target services-grid">
               <div className="service-card">
                 <div className="card-image-wrapper">
-                  <img className="card-image" src="/images/limpieza_dental.png" alt="Limpieza dental" />
+                  <img className="card-image" src={optimizedImages?.limpieza || "/images/limpieza_dental.png"} alt="Limpieza dental" />
                 </div>
                 <p className="card-text">Profilaxis profesional para eliminar placa y sarro, y prevenir enfermedades de encías.</p>
                 <div className="card-badge">Limpieza dental</div>
@@ -897,7 +911,7 @@ export default function PageWiper() {
 
               <div className="service-card">
                 <div className="card-image-wrapper">
-                  <img className="card-image" src="/images/ortodoncia.png" alt="Ortodoncia" />
+                  <img className="card-image" src={optimizedImages?.ortodoncia || "/images/ortodoncia.png"} alt="Ortodoncia" />
                 </div>
                 <p className="card-text">Brackets tradicionales y alineadores transparentes para corregir la posición de tu arco dental.</p>
                 <div className="card-badge">Ortodoncia</div>
@@ -905,7 +919,7 @@ export default function PageWiper() {
 
               <div className="service-card">
                 <div className="card-image-wrapper">
-                  <img className="card-image" src="/images/implantes.png" alt="Implantes" />
+                  <img className="card-image" src={optimizedImages?.implantes || "/images/implantes.png"} alt="Implantes" />
                 </div>
                 <p className="card-text">Reemplazo de piezas dentales con materiales biocompatibles y planificación 3D.</p>
                 <div className="card-badge">Implantes</div>
@@ -913,7 +927,7 @@ export default function PageWiper() {
 
               <div className="service-card">
                 <div className="card-image-wrapper">
-                  <img className="card-image" src="/images/blanqueamiento.png" alt="Blanqueamiento" />
+                  <img className="card-image" src={optimizedImages?.blanqueamiento || "/images/blanqueamiento.png"} alt="Blanqueamiento" />
                 </div>
                 <p className="card-text">Aclarado dental seguro y progresivo, adaptado a la sensibilidad de cada paciente.</p>
                 <div className="card-badge">Blanqueamiento</div>
@@ -921,7 +935,7 @@ export default function PageWiper() {
 
               <div className="service-card">
                 <div className="card-image-wrapper">
-                  <img className="card-image" src="/images/endodoncia.png" alt="Endodoncia" />
+                  <img className="card-image" src={optimizedImages?.endodoncia || "/images/endodoncia.png"} alt="Endodoncia" />
                 </div>
                 <p className="card-text">Tratamiento de conducto sin dolor, con tecnología rotatoria de última generación.</p>
                 <div className="card-badge">Endodoncia</div>
@@ -929,7 +943,7 @@ export default function PageWiper() {
 
               <div className="service-card">
                 <div className="card-image-wrapper">
-                  <img className="card-image" src="/images/odontopediatria.png" alt="Odontopediatría" />
+                  <img className="card-image" src={optimizedImages?.odontopediatria || "/images/odontopediatria.png"} alt="Odontopediatría" />
                 </div>
                 <p className="card-text">Atención especializada y en confianza para las primeras visitas de los más pequeños.</p>
                 <div className="card-badge">Odontopediatría</div>
