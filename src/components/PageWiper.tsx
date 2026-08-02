@@ -1077,10 +1077,10 @@ export default function PageWiper() {
         {/* SECTION 6: VISIT / RESERVAR */}
         <section className="page-panel" style={{ ...panelStyle, zIndex: 6, clipPath: 'inset(100% 0 0 0)', backgroundColor: '#075985' }}>
           <div className="w-full h-full flex justify-center items-center bg-sky-900 overflow-y-auto overflow-x-hidden">
-            <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-8 pt-32 pb-16 lg:py-16 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center text-center lg:text-left">
+            <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-8 pt-[25%] lg:pt-16 pb-16 lg:py-16 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center text-center lg:text-left">
               
               <div className="text-white flex flex-col items-center lg:items-start">
-                <h2 className="reveal-target text-4xl sm:text-5xl lg:text-[3.5rem] font-bold leading-[1.1] mb-6 tracking-tight text-white mt-20 lg:mt-0">
+                <h2 className="reveal-target text-[2.5rem] lg:text-[3.5rem] font-bold leading-[1.1] mb-6 tracking-tight text-white mt-0">
                   ¿Listo para transformar<br />tu sonrisa?
                 </h2>
                 <p className="reveal-target text-white/90 text-[1.15rem] leading-relaxed max-w-[450px] mb-12">
